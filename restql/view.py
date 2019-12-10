@@ -35,7 +35,7 @@ def create_endpoint(model):
     table = model.__table__  # type: sqlalchemy.schema.Table
     table_name = table.name
 
-    @app.route(f"/{table_name}/")
+    @app.route(f"/{table_name}/all")
     def select_all():
         session = get_session()
         r = session.query(model).all()

@@ -5,7 +5,7 @@
   "main": "restql.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node restql.js"
+    "start": "npx babel-node restql.js"
   },
   "author": "Duy",
   "license": "MIT",
@@ -14,6 +14,8 @@
   },
   "devDependencies": {
     "@babel/cli": "^7.7.5",
-    "@babel/core": "^7.7.5"
+    "@babel/core": "^7.7.5",
+    "@babel/node": "^7.7.4",
+    "@babel/preset-env": "^7.7.6"
   }
 }
