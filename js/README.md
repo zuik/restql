@@ -1,3 +1,3 @@
 # restql in JavaScript
 
-Please `npm run start`.
+Please `npm install` then `npm run start`.
