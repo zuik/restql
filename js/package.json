@@ -9,6 +9,7 @@
   },
   "author": "Duy",
   "license": "MIT",
+  "browserslist": "last 2 Chrome versions or last 2 Firefox versions or current node",
   "dependencies": {
     "axios": "^0.19.0"
   },

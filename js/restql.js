@@ -22,6 +22,12 @@ class Query {
 
     }
 
+    /**
+     * Filter the query.
+     *
+     * @param criteria - Criteria for filtering the query. We accept the criteria in the form of {property name: {operator: value} }. Current supported operator are: "eq" -> "==",
+     * @returns {Query}
+     */
     filter(criteria) {
         this.filterCriteria = criteria;
         this.model = `${this.model}/filter`;
