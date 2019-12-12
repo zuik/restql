@@ -44,6 +44,7 @@ def create_endpoint(model):
             return jsonify(r)
         else:
             return abort(400)
+
     @app.route(f"/{table_name}/filter")
     def filter():
         session = get_session()
@@ -54,13 +55,31 @@ def create_endpoint(model):
         if filter:
             for k, v in filter.items():
                 if "eq" in v.keys():
-                 q = q.filter(getattr(model, k) == v["eq"])
+                    # Handle ==
+                    q = q.filter(getattr(model, k) == v["eq"])
+                elif "lt" in v.keys():
+                    # Handle <
+                    pass
+                elif "lte" in v.keys():
+                    # Handle <=
+                    pass
+                elif "gt" in v.keys():
+                    # Handle >
+                    pass
+                elif "gte" in v.keys():
+                    # Handle >=
+                    pass
+                elif "and" in v.keys():
+                    pass
+                elif "or" in v.keys():
+                    pass
 
         finalize = request.args.get("finalize", "all")
         if finalize != "all":
             return abort(400)
         else:
             return jsonify(q.all())
+
     return app
 
 
