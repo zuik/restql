@@ -4,6 +4,8 @@ class Query {
     constructor(model) {
         this.model = model;
         this.filterCriteria = undefined;
+        this.orderByCriteria = undefined;
+        this.joinCriteria = undefined;
     }
 
     async all() {
@@ -15,6 +17,12 @@ class Query {
         if (this.filterCriteria) {
             params["filter"] = this.filterCriteria;
         }
+        if (this.orderByCriteria) {
+            params["orderBy"] = this.orderByCriteria;
+        }
+        if (this.joinCriteria) {
+            params["join"] = this.joinCriteria;
+        }
         console.log(url, params);
         const {data} = await axios.get(url, {params: params});
 
@@ -25,6 +33,20 @@ class Query {
     filter(criteria) {
         this.filterCriteria = criteria;
         this.model = `${this.model}/filter`;
+
+        return this;
+    }
+
+    orderBy(criteria) {
+        this.orderByCriteria = criteria;
+        this.model = `${this.model}/orderBy`;
+
+        return this;
+    }
+
+    join(criteria) {
+        this.joinCriteria = criteria;
+        this.model = `${this.model}/join`;
 
         return this;
     }
@@ -41,7 +63,10 @@ function query(model) {
 async function main() {
     let q = new Query("http://localhost:5000/users");
     // const result = await q.all();
-    const result = await q.filter({"name": {"eq": "ed"}}).all();
+    // const result = await q.filter({"name": {"eq": "ed"}}).all();
+    // const result = await q.orderBy({"name": {"asc": true}}).all();
+    // const result = await q.join({"id": {"filter": "user_id"}}).all();
+    const result = await q.join().all();
     console.log(result);
     result.map((v) => {
         console.log(v.fullname);

@@ -31,16 +31,20 @@ def get_session():
         return g.session
 
 
-def create_endpoint(model):
-    table = model.__table__  # type: sqlalchemy.schema.Table
+def create_endpoint(model1, model2=None):
+    table = model1.__table__  # type: sqlalchemy.schema.Table
     table_name = table.name
+
+    if model2 is not None:
+        join_table = model2.__table__
+        join_table_name = join_table.name
 
     @app.route(f"/{table_name}")
     def select_all():
         session = get_session()
         finalize = request.args.get("finalize", "all")
         if finalize == "all":
-            r = session.query(model).all()
+            r = session.query(model1).all()
             return jsonify(r)
         else:
             return abort(400)
@@ -48,15 +52,14 @@ def create_endpoint(model):
     @app.route(f"/{table_name}/filter")
     def filter():
         session = get_session()
-        q = session.query(model)
+        q = session.query(model1)
 
         filter = json.loads(request.args.get("filter"))
         print(filter)
         if filter:
             for k, v in filter.items():
                 if "eq" in v.keys():
-                    # Handle ==
-                    q = q.filter(getattr(model, k) == v["eq"])
+                    q = q.filter(getattr(model1, k) == v["eq"])
                 elif "lt" in v.keys():
                     # Handle <
                     pass
@@ -73,6 +76,49 @@ def create_endpoint(model):
                     pass
                 elif "or" in v.keys():
                     pass
+        finalize = request.args.get("finalize", "all")
+        if finalize != "all":
+            return abort(400)
+        else:
+            return jsonify(q.all())
+    @app.route(f"/{table_name}/orderBy")
+    def orderBy():
+        session = get_session()
+        q = session.query(model1)
+
+        orderBy = json.loads(request.args.get("orderBy"))
+        print(orderBy)
+        if orderBy:
+            for k, v in orderBy.items():
+                if (v["asc"]):
+                    q = q.order_by(getattr(model1, k))
+                else:
+                    q = q.order_by(getattr(model1, k).desc())
+        finalize = request.args.get("finalize", "all")
+        if finalize != "all":
+            return abort(400)
+        else:
+            return jsonify(q.all())
+
+    @app.route(f"/{table_name}/join")
+    def join():
+        session = get_session()
+
+        if request.args.get("join") == None:
+            q = session.query(model1, model2)
+            finalize = request.args.get("finalize", "all")
+            if finalize != "all":
+                return abort(400)
+            else:
+                return jsonify(q.all())
+        else:
+            q = session.query(model1, model2)
+            join = json.loads(request.args.get("join"))
+            print(join)
+            if join:
+                for k, v in join.items():
+                    if "filter" in v.keys():
+                        q = q.filter(getattr(model1, k) == getattr(model2, v["filter"]))
 
         finalize = request.args.get("finalize", "all")
         if finalize != "all":
@@ -94,10 +140,10 @@ def shutdown_session(exception=None):
 
 
 if __name__ == '__main__':
-    from model import User
+    from model import User, Address
 
     app.config["DB_URI"] = "sqlite:///test.db"
 
-    app = create_endpoint(User)
+    app = create_endpoint(User, Address)
 
     app.run(debug=True)
