@@ -8,6 +8,11 @@ class Query {
         this.joinCriteria = undefined;
     }
 
+    /**
+     * Finalize and return __all__ of the result for the query.
+     *
+     * @returns {Promise<T>}
+     */
     async all() {
         const url = `${this.model}`;
         // Right now we only support all() to finalize the query.
@@ -33,7 +38,7 @@ class Query {
     /**
      * Filter the query.
      *
-     * @param criteria - Criteria for filtering the query. We accept the criteria in the form of {property name: {operator: value} }. Current supported operator are: "eq" -> "==",
+     * @param criteria - Criteria for filtering the query. We accept the criteria in the form of `{propertyName: {operator: value} }`. Current supported operator are: "eq" -> "==",
      * @returns {Query}
      */
     filter(criteria) {

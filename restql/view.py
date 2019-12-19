@@ -58,29 +58,36 @@ def create_endpoint(model1, model2=None):
         print(filter)
         if filter:
             for k, v in filter.items():
-                if "eq" in v.keys():
-                    q = q.filter(getattr(model1, k) == v["eq"])
-                elif "lt" in v.keys():
-                    # Handle <
-                    pass
-                elif "lte" in v.keys():
-                    # Handle <=
-                    pass
-                elif "gt" in v.keys():
-                    # Handle >
-                    pass
-                elif "gte" in v.keys():
-                    # Handle >=
-                    pass
-                elif "and" in v.keys():
-                    pass
-                elif "or" in v.keys():
-                    pass
+                if k == "&&":
+                    # Then v is the things that we need to and
+                    q = handle_logic_op(k, q, v[0])
+                    q = handle_logic_op(k, q, v[1])
+                else:
+                    q = handle_logic_op(k, q, v)
+
         finalize = request.args.get("finalize", "all")
         if finalize != "all":
             return abort(400)
         else:
             return jsonify(q.all())
+
+    def handle_logic_op(key, q, v):
+        if "eq" in v.keys():
+            q = q.filter(getattr(model1, key) == v["eq"])
+        elif "lt" in v.keys():
+            # Handle <
+            q = q.filter(getattr(model1, key) < v["lt"])
+        elif "lte" in v.keys():
+            # Handle <=
+            q = q.filter(getattr(model1, key) <= v["lte"])
+        elif "gt" in v.keys():
+            # Handle >
+            q = q.filter(getattr(model1, key) > v["gt"])
+        elif "gte" in v.keys():
+            # Handle >=
+            q = q.filter(getattr(model1, key) >= v["gte"])
+        return q
+
     @app.route(f"/{table_name}/orderBy")
     def orderBy():
         session = get_session()
